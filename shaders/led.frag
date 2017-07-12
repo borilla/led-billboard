@@ -5,10 +5,30 @@ uniform float height;
 uniform sampler2D map;
 uniform float pixelSize;
 
+float limitColor(float value) {
+	const float resolution = 6.0;
+	return floor(value * resolution) / resolution;
+}
+
+vec4 limitColor(vec3 color) {
+	float r = limitColor(color.r);
+	float g = limitColor(color.g);
+	float b = limitColor(color.b);
+	return vec4(r, g, b, 1);
+}
+
+vec3 increaseBrightness(vec3 color) {
+	const float factor = 1.6;
+	float r = color.r * factor;
+	float g = color.g * factor;
+	float b = color.b * factor;
+	return vec3(r, g, b);
+}
+
 void main() {
 	vec2 pixel = vec2(gl_FragCoord.x, height - gl_FragCoord.y);
 
-	if ((mod(pixel.x, pixelSize) < 1.0) || (mod(pixel.y, pixelSize) < 1.0)) {
+	if ((mod(pixel.x, pixelSize) < 2.0) || (mod(pixel.y, pixelSize) < 2.0)) {
 		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	else {
@@ -21,6 +41,6 @@ void main() {
 
 		vec3 color = texture2D(map, samplePos).rgb;
 
-		gl_FragColor = vec4(color, 1.0);
+		gl_FragColor = limitColor(increaseBrightness(color));
 	}
 }
