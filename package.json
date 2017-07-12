@@ -1,0 +1,26 @@
+{
+  "name": "led-billboard",
+  "version": "0.1.0",
+  "description": "Display video content as if on a LED billboard",
+  "main": "index.js",
+  "scripts": {
+    "start": "beefy index.js:bundle.js -- -t brfs",
+    "bundle": "browserify index.js -t brfs > bundle.js"
+  },
+  "keywords": [
+    "led",
+    "billboard",
+    "video",
+    "webgl",
+    "shader"
+  ],
+  "author": "borilla",
+  "license": "MIT",
+  "devDependencies": {
+    "beefy": "^2.1.8",
+    "brfs": "^1.4.3",
+    "browserify": "^14.4.0",
+    "gl-now": "^1.4.0",
+    "post-process": "0.0.1"
+  }
+}
