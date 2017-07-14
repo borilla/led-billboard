@@ -30,10 +30,27 @@ vec3 increaseBrightness(vec3 color) {
 	return vec3(r, g, b);
 }
 
-vec4 glitch(vec3 color) {
-	color = vec3(color.r, 1.0, color.b);
+vec3 glitchColor(vec3 color, int glitch) {
+	if (glitch == 255) {
+		color = vec3(0.0, 0.0, 0.0); // stuck off
+	}
+	else if (glitch == 254) {
+		color = vec3(1.0, 1.0, 1.0); // stuck on
+	}
+	else if (glitch == 1) {
+		color = color * 0.5; // dim
+	}
+	else if (glitch == 2) {
+		color = vec3(0.0, color.g, color.b); // red failed
+	}
+	else if (glitch == 3) {
+		color = vec3(color.r, 0.0, color.b); // green failed
+	}
+	else if (glitch == 4) {
+		color = vec3(color.r, color.g, 0.0); // blue failed
+	}
 
-	return vec4(color, 1.0);
+	return color;
 }
 
 void main() {
@@ -44,9 +61,11 @@ void main() {
 	vec2 distance = pixelCentre - screenPos;
 	float gradient = smoothstep(pixelRadius - pixelFade, pixelRadius, length(distance));
 	vec3 color = texture2D(map, texturePos).rgb;
+	int glitch = int(texture2D(glitches, texturePos).a * 255.0 + 0.5);
 
 	color = increaseBrightness(color);
 	color = limitColor(color);
+	color = glitchColor(color, glitch);
 
 	gl_FragColor = mix(vec4(color, 1.0), vec4(0.0, 0.0, 0.0, 1.0), gradient);
 }
