@@ -3,7 +3,11 @@ precision mediump float;
 uniform float width;
 uniform float height;
 uniform sampler2D map;
-uniform float pixelSize;
+
+uniform float pixelsX;
+uniform float pixelsY;
+uniform float pixelRadius;
+uniform float pixelFade;
 uniform int pixelGlitches[10];
 
 float limitColor(float value) {
@@ -19,7 +23,7 @@ vec3 limitColor(vec3 color) {
 }
 
 vec3 increaseBrightness(vec3 color) {
-	const float factor = 1.6;
+	const float factor = 1.8;
 	float r = color.r * factor;
 	float g = color.g * factor;
 	float b = color.b * factor;
@@ -28,31 +32,23 @@ vec3 increaseBrightness(vec3 color) {
 
 vec4 glitch(vec3 color) {
 	if (pixelGlitches[0] == 1) {
-		color = vec3(color.r, 0.0, color.b);
+		color = vec3(color.r, 1.0, color.b);
 	}
 
 	return vec4(color, 1.0);
 }
 
 void main() {
-	vec2 pixel = vec2(gl_FragCoord.x, height - gl_FragCoord.y);
+	vec2 screenPos = vec2(gl_FragCoord.x, height - gl_FragCoord.y);
+	vec2 pixel = vec2(floor(screenPos.x / width * pixelsX), floor(screenPos.y / height * pixelsY));
+	vec2 texturePos = vec2((pixel.x + 0.5) / pixelsX, (pixel.y + 0.5) / pixelsY);
+	vec2 pixelCentre = texturePos * vec2(width, height);
+	vec2 distance = pixelCentre - screenPos;
+	float gradient = smoothstep(pixelRadius - pixelFade, pixelRadius, length(distance));
+	vec3 color = texture2D(map, texturePos).rgb;
 
-	if ((mod(pixel.x, pixelSize) < 1.0) || (mod(pixel.y, pixelSize) < 1.0)) {
-		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-	}
-	else {
-		vec2 pixels = vec2(width / pixelSize, height / pixelSize);
-		vec2 position = vec2(pixel.x / width, pixel.y / height);
-		vec2 samplePos;
+	color = increaseBrightness(color);
+	color = limitColor(color);
 
-		samplePos.x = floor(position.x * pixels.x) / pixels.x;
-		samplePos.y = floor(position.y * pixels.y) / pixels.y;
-
-		vec3 color = texture2D(map, samplePos).rgb;
-
-		color = increaseBrightness(color);
-		color = limitColor(color);
-
-		gl_FragColor = glitch(color);
-	}
+	gl_FragColor = mix(vec4(color, 1.0), vec4(0.0, 0.0, 0.0, 1.0), gradient);
 }

@@ -23,11 +23,21 @@ image.addEventListener('load', function() {
 	}
 
 	function render() {
+		var pixelSize = 5;
+		var pixelRadius = 3;
+		var pixelFade = 2;
+		var pixelsX = Math.round(shell.canvas.width / pixelSize);
+		var pixelsY = Math.round(shell.canvas.height / pixelSize);
+
 		addIntArrayUniform(post.shader, 'pixelGlitches', [
 			1,1,2,3,4,5,6,7,8,9
 		]);
+		post.shader.uniforms.pixelsX = pixelsX;
+		post.shader.uniforms.pixelsY = pixelsY;
+		post.shader.uniforms.pixelRadius = pixelRadius;
+		post.shader.uniforms.pixelFade = pixelFade;
 
-		post.shader.uniforms.pixelSize = 6;
+
 		post.render(shell.width, shell.height);
 	}
 
