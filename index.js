@@ -9,33 +9,54 @@ image.src = 'can.jpg';
 
 image.addEventListener('load', function() {
 	var shell, post;
-	var pixelSize, pixelRadius, pixelFade;
-	var pixelsX, pixelsY, glitchTexture;
+	var pixelsX, pixelsY, pixelSize, pixelRadius, pixelFade;
+	var panelSize;
+	var glitchTexture;
 
 	shell = now({ clearColor: [0, 0, 0, 1] })
 		.on('gl-init', init)
 		.on('gl-render', render);
 
-	function getShaderCode() {
-		var code = fs.readFileSync(__dirname + '/shaders/led.frag', 'utf8');
-		return code;
-	}
-
 	function init() {
-		post = pp(shell.gl, image, getShaderCode());
+		post = pp(shell.gl, image, fs.readFileSync(__dirname + '/shaders/led.frag', 'utf8'));
 
 		pixelSize = 5;
 		pixelRadius = 3;
 		pixelFade = 2;
+		panelSize = 16;
 		pixelsX = Math.round(shell.canvas.width / pixelSize);
 		pixelsY = Math.round(shell.canvas.height / pixelSize);
+		panelsX = Math.floor(pixelsX / panelSize);
+		panelsY = Math.floor(pixelsY / panelSize);
 		glitchTexture = new DataTexture(pixelsX, pixelsY);
 
-		for (var i = 0; i < pixelsX * pixelsY * 0.05; ++i) {
+		glitchRandomPanels();
+		glitchRandomPixels();
+	}
+
+	function glitchRandomPixels() {
+		for (var i = 0; i < pixelsX * pixelsY * 0.02; ++i) {
 			var x = Math.floor(Math.random() * pixelsX);
 			var y = Math.floor(Math.random() * pixelsY);
-			var glitch = Math.floor(Math.random() * 5) + 1;
+			var glitch = Math.floor(Math.random() * 8) + 1;
 			glitchTexture.set(x, y, glitch);
+		}
+	}
+
+	function glitchRandomPanels() {
+		for (var x = 0; x < panelsX; ++x) {
+			for (var y =-0; y < panelsY; ++y) {
+				var glitch = Math.floor(Math.random() * 16);
+				glitchPanel(x, y, glitch);
+			}
+		}
+	}
+
+	function glitchPanel(panelX, panelY, glitch) {
+		for (var x = panelX * panelSize; x < (panelX + 1) * panelSize; ++x) {
+			for (var y = panelY * panelSize; y < (panelY + 1) * panelSize; ++y) {
+				glitchTexture.set(x, y, glitch);
+			}
 		}
 	}
 

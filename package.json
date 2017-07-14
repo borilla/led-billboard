@@ -10,8 +10,10 @@
   "keywords": [
     "led",
     "billboard",
+    "image",
     "video",
     "webgl",
+    "glsl",
     "shader"
   ],
   "author": "borilla",

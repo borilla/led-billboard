@@ -53,15 +53,35 @@ vec3 glitchColor(vec3 color, int glitch) {
 	return color;
 }
 
+vec2 glitchPos(vec2 screenPos, int glitch) {
+	if (glitch == 5) {
+		screenPos = vec2(screenPos.x - 1.0, screenPos.y);
+	}
+	if (glitch == 6) {
+		screenPos = vec2(screenPos.x + 1.0, screenPos.y);
+	}
+	if (glitch == 7) {
+		screenPos = vec2(screenPos.x, screenPos.y - 1.0);
+	}
+	if (glitch == 8) {
+		screenPos = vec2(screenPos.x, screenPos.y + 1.0);
+	}
+
+	return screenPos;
+}
+
 void main() {
 	vec2 screenPos = vec2(gl_FragCoord.x, height - gl_FragCoord.y);
 	vec2 pixel = vec2(floor(screenPos.x / width * pixelsX), floor(screenPos.y / height * pixelsY));
 	vec2 texturePos = vec2((pixel.x + 0.5) / pixelsX, (pixel.y + 0.5) / pixelsY);
+
+	int glitch = int(texture2D(glitches, texturePos).a * 255.0 + 0.5);
+	screenPos = glitchPos(screenPos, glitch);
+
 	vec2 pixelCentre = texturePos * vec2(width, height);
 	vec2 distance = pixelCentre - screenPos;
 	float gradient = smoothstep(pixelRadius - pixelFade, pixelRadius, length(distance));
 	vec3 color = texture2D(map, texturePos).rgb;
-	int glitch = int(texture2D(glitches, texturePos).a * 255.0 + 0.5);
 
 	color = increaseBrightness(color);
 	color = limitColor(color);
