@@ -8,7 +8,7 @@ uniform float pixelsX;
 uniform float pixelsY;
 uniform float pixelRadius;
 uniform float pixelFade;
-uniform int pixelGlitches[10];
+uniform sampler2D glitches;
 
 float limitColor(float value) {
 	const float resolution = 6.0;
@@ -31,9 +31,7 @@ vec3 increaseBrightness(vec3 color) {
 }
 
 vec4 glitch(vec3 color) {
-	if (pixelGlitches[0] == 1) {
-		color = vec3(color.r, 1.0, color.b);
-	}
+	color = vec3(color.r, 1.0, color.b);
 
 	return vec4(color, 1.0);
 }
