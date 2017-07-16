@@ -3,26 +3,31 @@ var pp  = require('post-process');
 var fs  = require('fs');
 var DataTexture  = require('./lib/data-texture');
 
-var image = document.createElement('img');
+var video = document.createElement('video');
 
-image.src = 'can.jpg';
+video.loop = true;
+video.muted = false;
+video.src = 'ExpanseSpaceBattle.mp4';
+video.play();
 
-image.addEventListener('load', function() {
+video.addEventListener('loadeddata', function() {
+	var maxFrameRate = 150; // ms
+	var frameTimeout = 0;
 	var shell, post;
 	var pixelsX, pixelsY, pixelSize, pixelRadius, pixelFade;
 	var panelSize;
 	var glitchTexture;
 
-	shell = now({ clearColor: [0, 0, 0, 1] })
+	shell = now({ clearFlags: 0 })
 		.on('gl-init', init)
 		.on('gl-render', render);
 
 	function init() {
-		post = pp(shell.gl, image, fs.readFileSync(__dirname + '/shaders/led.frag', 'utf8'));
+		post = pp(shell.gl, video, fs.readFileSync(__dirname + '/shaders/led.frag', 'utf8'));
 
 		pixelSize = 5;
-		pixelRadius = 3;
-		pixelFade = 2;
+		pixelRadius = 2;
+		pixelFade = 1;
 		panelSize = 16;
 		pixelsX = Math.round(shell.canvas.width / pixelSize);
 		pixelsY = Math.round(shell.canvas.height / pixelSize);
@@ -35,7 +40,7 @@ image.addEventListener('load', function() {
 	}
 
 	function glitchRandomPixels() {
-		for (var i = 0; i < pixelsX * pixelsY * 0.02; ++i) {
+		for (var i = 0; i < pixelsX * pixelsY * 0.01; ++i) {
 			var x = Math.floor(Math.random() * pixelsX);
 			var y = Math.floor(Math.random() * pixelsY);
 			var glitch = Math.floor(Math.random() * 8) + 1;
@@ -46,7 +51,7 @@ image.addEventListener('load', function() {
 	function glitchRandomPanels() {
 		for (var x = 0; x < panelsX; ++x) {
 			for (var y =-0; y < panelsY; ++y) {
-				var glitch = Math.floor(Math.random() * 16);
+				var glitch = Math.floor(Math.random() * 50);
 				glitchPanel(x, y, glitch);
 			}
 		}
@@ -60,7 +65,16 @@ image.addEventListener('load', function() {
 		}
 	}
 
-	function render() {
+	function render(time) {
+		if (!frameTimeout) {
+			frameTimeout = setTimeout(function () {
+				frameTimeout = 0;
+			}, maxFrameRate);
+			renderFrame();
+		}
+	}
+
+	function renderFrame() {
 		var shader = post.shader;
 
 		glitchTexture.bindToUniform(shader, 'glitches', 1);
