@@ -1,6 +1,6 @@
 # led-billboard
 
-Display image or video content as if on a (slightly crappy) LED billboard
+Display image or video content as if on a (slightly glitched) LED billboard
 
 ## About
 
